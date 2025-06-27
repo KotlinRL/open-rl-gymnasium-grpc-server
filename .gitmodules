@@ -1,3 +1,3 @@
 [submodule "protos"]
 	path = protos
-	url = https://github.com/open-rl-env/protos.git
+	url = https://github.com/KotlinRL/open-rl-env.git
