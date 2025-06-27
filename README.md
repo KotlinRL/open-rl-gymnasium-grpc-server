@@ -2,7 +2,7 @@
 # 🏆 Open RL Gymnasium gRPC Server
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/kotlinrl/open-rl-gymnasium-grpc-server)](https://hub.docker.com/r/kotlinrl/open-rl-gymnasium-grpc-server)
-[![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/open-rl-env/open-rl-gymnasium-grpc-server)
+[![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/KotlinRL/open-rl-gymnasium-grpc-server)
 
 A production-grade **gRPC server for OpenAI Gymnasium environments**, enabling reinforcement learning (RL) agents in any language (Kotlin, Python, Java, Go, and more) to interact with Gymnasium environments over the network.
 
@@ -30,7 +30,7 @@ The gRPC server will listen on port `50051`.
 
 ## 🧩 gRPC API Overview
 
-See the [Env.proto specification](https://github.com/open-rl-env/open-rl-env-proto/blob/main/Env.proto) for message and service details.
+See the [Env.proto specification](https://github.com/KotlinRL/open-rl-env/blob/main/Env.proto) for message and service details.
 
 | Method     | Description                     |
 |------------|---------------------------------|
