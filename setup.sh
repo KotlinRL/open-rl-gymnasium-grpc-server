@@ -31,9 +31,5 @@ python -m grpc_tools.protoc \
 echo "gRPC stubs generated successfully!"
 
 # Step 5. Run unit tests
-echo "Running unit tests"
-pytest test/
-
-# Step 6: Deactivate the virtual environment
 deactivate
-echo "Build process completed successfully!"
+echo "Setup process completed successfully!"

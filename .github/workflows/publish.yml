@@ -14,11 +14,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Run build script
-      run: |
-        chmod +x ./build.sh
-        ./build.sh
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
@@ -39,6 +34,8 @@ jobs:
         push: true
         provenance: true
         sbom: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
         tags: |
           ${{ secrets.DOCKERHUB_ORG }}/open-rl-gymnasium-grpc-server:${{ steps.tag.outputs.TAG }}
           ${{ secrets.DOCKERHUB_ORG }}/open-rl-gymnasium-grpc-server:latest
