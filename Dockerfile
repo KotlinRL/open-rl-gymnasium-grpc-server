@@ -1,22 +1,21 @@
-FROM python:3.13-slim
+# Use multi-stage builds
+FROM python:3.13-slim AS builder
 
+# Install build dependencies only in builder stage
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc swig \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*WORKDIR /home/appuser/app
-
-RUN useradd --create-home appuser
-RUN mkdir -p /home/appuser/app
-RUN chown -R appuser:appuser /home/appuser
-
-WORKDIR /home/appuser/app
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-COPY src /home/appuser/app
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Final stage
+FROM python:3.13-slim
 
-USER appuser
+# Copy only the built wheels from builder
+COPY --from=builder /wheels /wheels
+COPY . .
 
-EXPOSE 50051
+RUN pip install --no-cache /wheels/*
 
-CMD ["python", "server.py"]
+# Add .dockerignore to exclude unnecessary fi   les
