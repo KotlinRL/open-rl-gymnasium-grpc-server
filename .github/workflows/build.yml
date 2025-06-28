@@ -38,6 +38,8 @@ jobs:
         context: .
         platforms: linux/amd64,linux/arm64
         push: true
+        provenance: true
+        sbom: true
         tags: |
           ${{ secrets.DOCKERHUB_ORG }}/open-rl-gymnasium-grpc-server:latest
           ${{ secrets.DOCKERHUB_ORG }}/open-rl-gymnasium-grpc-server:${{ github.sha }}
