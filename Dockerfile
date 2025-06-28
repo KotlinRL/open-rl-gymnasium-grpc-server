@@ -6,7 +6,6 @@ RUN apt-get update && \
     mkdir -p /home/appuser/app && \
     chown -R appuser:appuser /home/appuser
 
-
 WORKDIR /home/appuser/app
 
 COPY requirements.txt .
@@ -17,17 +16,14 @@ RUN pip install --upgrade pip setuptools wheel && \
     pip install --prefer-binary --no-cache-dir -r requirements.txt && \
     apt-get remove -y gcc g++ swig && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip cache purge
-
-
-RUN python -m grpc_tools.protoc \
-    -I/protos \
-    --python_out=/home/appuser/app \
-    --grpc_python_out=/home/appuser/app \
-    /protos/*.proto
-
-RUN rm -rf /protos requirements.txt
+    python -m grpc_tools.protoc \
+        -I/protos \
+        --python_out=/home/appuser/app \
+        --grpc_python_out=/home/appuser/app \
+        /protos/*.proto && \
+    pip cache purge && \
+    rm -rf /var/lib/apt/lists/* /root/.cache /root/.local /tmp/* && \
+    rm -rf /protos requirements.txt
 
 USER appuser
 
