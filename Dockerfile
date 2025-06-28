@@ -11,9 +11,11 @@ RUN chown -R appuser:appuser /home/appuser
 WORKDIR /home/appuser/app
 
 COPY requirements.txt .
-COPY src /home/appuser/app
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel
+RUN pip install --prefer-binary --no-cache-dir -r requirements.txt
+
+COPY src /home/appuser/app
 
 USER appuser
 
