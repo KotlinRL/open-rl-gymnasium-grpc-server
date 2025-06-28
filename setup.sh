@@ -18,6 +18,7 @@ echo "Virtual Environment Activated!"
 echo "Installing dependencies from requirements.txt..."
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install pytest
 
 # Step 4: Generate gRPC stubs
 PROTO_SRC="$PROJECT_ROOT/protos"
