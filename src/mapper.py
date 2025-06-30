@@ -196,4 +196,4 @@ def proto_to_gym_action(proto):
         raise ValueError(f"Unsupported Protobuf action field: {field}")
 
 def gym_to_proto_info(info):
-    return Info(data=[Info.DataEntry(key=str(k), value=str(v)) for k, v in info.items()])
+    return Info(data={str(k): str(v) for k, v in info.items()})
