@@ -1,10 +1,16 @@
 FROM python:3.13-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc g++ swig libgl1-mesa-glx && \
-    useradd --create-home appuser && \
-    mkdir -p /home/appuser/app && \
-    chown -R appuser:appuser /home/appuser
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        swig \
+        libgl1-mesa-glx \
+        xvfb \
+        x11-xserver-utils \
+    && useradd --create-home appuser \
+    && mkdir -p /home/appuser/app \
+    && chown -R appuser:appuser /home/appuser
 
 WORKDIR /home/appuser/app
 
@@ -29,4 +35,4 @@ USER appuser
 
 EXPOSE 50051
 
-CMD ["python", "server.py"]
+CMD /bin/sh -c "Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1 && python server.py"
