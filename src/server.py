@@ -269,11 +269,6 @@ if __name__ == "__main__":
     import os
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-    try:
-        os.remove("/tmp/.X1-lock")
-    except FileNotFoundError:
-        pass
-
     import pygame
     pygame.init()
     serve()
