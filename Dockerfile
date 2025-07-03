@@ -35,4 +35,4 @@ USER appuser
 
 EXPOSE 50051
 
-CMD /bin/sh -c "Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1 && python server.py"
+CMD /bin/sh -c "rm -f /tmp/.X1-lock && Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1 && python server.py"
