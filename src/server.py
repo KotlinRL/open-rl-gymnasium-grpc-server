@@ -5,6 +5,8 @@ import numpy as np
 from grpc import StatusCode
 from Env_pb2_grpc import EnvServicer, add_EnvServicer_to_server
 from google.protobuf.struct_pb2 import Struct
+from google.protobuf.json_format import MessageToDict
+
 from Env_pb2 import (
     MakeResponse,
     SpaceRequest,
@@ -18,8 +20,7 @@ from mapper import (
     ndarray_to_proto,
     gym_space_to_proto,
     gym_to_proto_observation,
-    proto_to_gym_action,
-    gym_to_proto_info
+    proto_to_gym_action
 )
 
 class EnvService(EnvServicer):
@@ -50,7 +51,7 @@ class EnvService(EnvServicer):
         try:
             env_id = request.env_id
             render_mode = "rgb_array" if request.render else None
-            options = {key: value for key, value in request.options.items()}
+            options = MessageToDict(request.options)
 
             env_instance = gym.make(env_id, render_mode=render_mode, **options)
             env_handle = str(id(env_instance))
@@ -146,14 +147,15 @@ class EnvService(EnvServicer):
             observation, reward, terminated, truncated, info = env_instance.step(action)
 
             grpc_observation = gym_to_proto_observation(observation)
-            grpc_info = gym_to_proto_info(info)
+            grpc_struct = Struct()
+            grpc_struct.update(info)
 
             return StepResponse(
                 observation=grpc_observation,
                 reward=reward,
                 terminated=terminated,
                 truncated=truncated,
-                info=grpc_info,
+                info=grpc_struct,
             )
         except Exception as e:
             self._handle_exception(context, "Unexpected error during step", e)
@@ -186,9 +188,8 @@ class EnvService(EnvServicer):
             frame = env_instance.render()
             if isinstance(frame, np.ndarray):
                 return RenderResponse(rgb_array=ndarray_to_proto(frame))
-            elif isinstance(frame, str):
-                return RenderResponse(ansi=frame)
             return RenderResponse(empty=Empty())
+
         except Exception as e:
             self._handle_exception(context, "Unexpected error during render", e)
             return RenderResponse()
@@ -252,6 +253,12 @@ def serve():
     """
     Create and start the gRPC server.
     """
+    import os
+    os.environ["SDL_VIDEODRIVER"] = "dummy"
+
+    import pygame
+    pygame.init()
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     add_EnvServicer_to_server(EnvService(), server)
 
@@ -266,9 +273,4 @@ def serve():
         print("Shutting down the server...")
 
 if __name__ == "__main__":
-    import os
-    os.environ["SDL_VIDEODRIVER"] = "dummy"
-
-    import pygame
-    pygame.init()
     serve()
