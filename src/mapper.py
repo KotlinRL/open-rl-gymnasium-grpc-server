@@ -22,13 +22,11 @@ from Env_pb2 import (
     TupleAction,
     MapAction,
     Action,
-    Info,
     MakeResponse,
     SpaceRequest,
     SpaceResponse,
     ResetResponse,
-    StepResponse,
-    Info,
+    StepResponse
 )
 
 # === DTYPE MAPPING HELPERS ===
@@ -195,5 +193,3 @@ def proto_to_gym_action(proto):
     else:
         raise ValueError(f"Unsupported Protobuf action field: {field}")
 
-def gym_to_proto_info(info):
-    return Info(data={str(k): str(v) for k, v in info.items()})
