@@ -25,7 +25,7 @@ from src.mapper import (
     ndarray_to_proto,
     proto_to_ndarray,
     gym_space_to_proto,
-    gym_to_proto_observation,
+    proto_gym_to_observation,
     proto_to_gym_action,
 )
 
@@ -102,7 +102,7 @@ class TestMapper(unittest.TestCase):
     # --- Test Gym Observation to Protobuf Observation ---
     def test_gym_array_to_proto_observation_array(self):
         observation = np.array([1.5, 2.5, 3.5], dtype=np.float32)
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("array"))
         self.assertEqual(proto.array.dtype, DType.float32)
@@ -110,28 +110,28 @@ class TestMapper(unittest.TestCase):
 
     def test_gym_int32_to_proto_observation_int32(self):
         observation = 3
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("int32"))
         self.assertEqual(proto.int32, observation)
 
     def test_gym_float_to_proto_observation_float32(self):
         observation = 3.5
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("float"))
         self.assertEqual(proto.float, observation)
 
     def test_gym_string_to_proto_observation_string(self):
         observation = "Hello, world!"
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("string"))
         self.assertEqual(proto.string, observation)
 
     def test_gym_tuple_to_proto_observation_tuple(self):
         observation = (1.5, 2.5, 3.5)
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("tuple"))
         self.assertEqual(len(proto.tuple.items), 3)
@@ -141,7 +141,7 @@ class TestMapper(unittest.TestCase):
 
     def test_gym_dict_to_proto_observation_map(self):
         observation = {"a": 1.5, "b": 2.5, "c": 3.5}
-        proto = gym_to_proto_observation(observation)
+        proto = proto_gym_to_observation(observation)
         self.assertIsInstance(proto, Observation)
         self.assertTrue(proto.HasField("map"))
         self.assertEqual(len(proto.map.items), 3)

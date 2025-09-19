@@ -1,5 +1,8 @@
 import gymnasium as gym
 import numpy as np
+from typing import Any, Mapping
+
+from google.protobuf.struct_pb2 import Struct
 
 from Env_pb2 import (
     DType,
@@ -145,7 +148,7 @@ def gym_space_to_proto(space):
         raise ValueError(f"Unsupported Gym space type: {type(space)}")
 
 # === OBSERVATION MAPPING ===
-def gym_to_proto_observation(obs):
+def proto_gym_to_observation(obs):
     """
     Convert Gym observation to Protobuf Observation message.
     """
@@ -160,13 +163,13 @@ def gym_to_proto_observation(obs):
     elif isinstance(obs, tuple):
         return Observation(
             tuple=TupleObservation(
-                items=[gym_to_proto_observation(item) for item in obs]
+                items=[proto_gym_to_observation(item) for item in obs]
             )
         )
     elif isinstance(obs, dict):
         return Observation(
             map=MapObservation(
-                items={key: gym_to_proto_observation(value) for key, value in obs.items()}
+                items={key: proto_gym_to_observation(value) for key, value in obs.items()}
             )
         )
     else:
@@ -193,3 +196,32 @@ def proto_to_gym_action(proto):
     else:
         raise ValueError(f"Unsupported Protobuf action field: {field}")
 
+def mapping_to_proto(value: Mapping[str, Any]) -> Struct:
+    struct = Struct()
+    struct.update(_to_jsonable(value))
+    return struct
+
+def _to_jsonable(x: Any):
+    # Scalars
+    if x is None or isinstance(x, (bool, int, float, str)):
+        return x
+    # NumPy scalars -> native Python
+    if isinstance(x, (np.bool_, np.integer, np.floating)):
+        return x.item()
+    # Arrays -> lists (booleans if it's a mask)
+    if isinstance(x, np.ndarray):
+        # try to preserve boolean masks; otherwise cast to float or int
+        if x.dtype == np.bool_:
+            return x.astype(bool).tolist()
+        elif np.issubdtype(x.dtype, np.integer):
+            return x.astype(int).tolist()
+        else:
+            return x.astype(float).tolist()
+    # Mappings -> dict
+    if isinstance(x, Mapping):
+        return {str(k): _to_jsonable(v) for k, v in x.items()}
+    # Sequences -> list
+    if isinstance(x, (list, tuple)):
+        return [_to_jsonable(v) for v in x]
+    # Fallback: stringify (last resort to avoid crashes)
+    return str(x)
