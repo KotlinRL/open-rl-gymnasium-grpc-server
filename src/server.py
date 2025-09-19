@@ -4,7 +4,6 @@ import gymnasium as gym
 import numpy as np
 from grpc import StatusCode
 from Env_pb2_grpc import EnvServicer, add_EnvServicer_to_server
-from google.protobuf.struct_pb2 import Struct
 from google.protobuf.json_format import MessageToDict
 
 from Env_pb2 import (
@@ -19,9 +18,12 @@ from Env_pb2 import (
 from mapper import (
     ndarray_to_proto,
     gym_space_to_proto,
-    gym_to_proto_observation,
-    proto_to_gym_action
+    proto_gym_to_observation,
+    proto_to_gym_action,
+    mapping_to_proto
 )
+import traceback
+traceback.print_exc()
 
 class EnvService(EnvServicer):
     """
@@ -60,8 +62,7 @@ class EnvService(EnvServicer):
             self.envs[env_handle] = env_instance
             self.render_flags[env_handle] = request.render
 
-            metadata_struct = Struct()
-            metadata_struct.update(env_instance.metadata)
+            metadata_struct = mapping_to_proto(env_instance.metadata)
 
             return MakeResponse(env_handle=env_handle, metadata=metadata_struct)
         except gym.error.Error as e:
@@ -120,7 +121,7 @@ class EnvService(EnvServicer):
                 return ResetResponse()
 
             observation = env_instance.reset(seed=request.seed if request.HasField("seed") else None)[0]
-            grpc_observation = gym_to_proto_observation(observation)
+            grpc_observation = proto_gym_to_observation(observation)
 
             return ResetResponse(observation=grpc_observation)
         except Exception as e:
@@ -146,9 +147,8 @@ class EnvService(EnvServicer):
             action = proto_to_gym_action(request.action)
             observation, reward, terminated, truncated, info = env_instance.step(action)
 
-            grpc_observation = gym_to_proto_observation(observation)
-            grpc_struct = Struct()
-            grpc_struct.update(info)
+            grpc_observation = proto_gym_to_observation(observation)
+            grpc_struct = mapping_to_proto(info)
 
             return StepResponse(
                 observation=grpc_observation,
@@ -158,6 +158,8 @@ class EnvService(EnvServicer):
                 info=grpc_struct,
             )
         except Exception as e:
+            tb = traceback.format_exc()
+            print(tb)
             self._handle_exception(context, "Unexpected error during step", e)
             return StepResponse()
 
