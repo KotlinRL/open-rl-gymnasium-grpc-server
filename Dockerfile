@@ -2,15 +2,15 @@ FROM python:3.13-slim
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gcc \
-        g++ \
-        swig \
-        libgl1-mesa-glx \
-        xvfb \
-        x11-xserver-utils \
+        gcc g++ swig \
+        libgl1 \
+        libglx0 \
+        libxext6 libxrender1 libsm6 \
+        xvfb x11-xserver-utils \
     && useradd --create-home appuser \
     && mkdir -p /home/appuser/app \
     && chown -R appuser:appuser /home/appuser
+
 
 WORKDIR /home/appuser/app
 
